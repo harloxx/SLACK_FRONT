@@ -1,9 +1,11 @@
-const LogIn =loadable(()=>import("@pages/LogIn"));
-const SignUp =loadable(()=>import("@pages/SignUp"));
-import React from "react";
-import loadable from "@loadable/component";
-import { Navigate, Router, Routes } from "react-router";
-import {Switch,Route,Redirect} from "react-router-dom";
+//페이지 단위로 코드 스플리팅
+const LogIn = loadable(() => import('@pages/LogIn'));
+const SignUp = loadable(() => import('@pages/SignUp'));
+// import LogIn from "@pages/LogIn";
+import React from 'react';
+import loadable from '@loadable/component';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
 //첫 시작
 //npm run dev하면 웹팩 실행되면서
 //http://localhost:3090 에서 열어야 핫리소스 적용됨
@@ -11,15 +13,11 @@ import {Switch,Route,Redirect} from "react-router-dom";
 
 //Redirect는 /시  /login으로 옮겨줌
 const App = () => {
-    return (
+  return (
+    <Routes>
+      <Route path="/login" element={<LogIn />} />
+    </Routes>
+  );
+};
 
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<LogIn />} />
-        <Route path="/signup" element={<SignUp />} />
-    
-      </Routes>
-    );
-  };
-
-  export default App;
+export default App;
