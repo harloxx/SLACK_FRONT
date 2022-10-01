@@ -1,14 +1,14 @@
 import useInput from '@hooks/useInput';
-import { Success, Form, Error, Label, Input, LinkContainer, Button, Header } from '@pages/SignUp/styles';
+import { Button, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
+
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
-
+  const { data: userData, error, mutate } = useSWR('/api/users', fetcher);
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -18,35 +18,27 @@ const LogIn = () => {
       setLogInError(false);
       axios
         .post(
-          'http://localhost:3095/api/users/login',
+          '/api/users/login',
           { email, password },
           {
             withCredentials: true,
           },
         )
-        .then((response) => {
+        .then(() => {
           mutate();
         })
         .catch((error) => {
-          setLogInError(error.response?.data?.statusCode === 401);
+          setLogInError(error.response?.data?.code === 401);
         });
     },
-    [email, password],
+    [email, password, mutate],
   );
 
-  if (data === undefined) {
-    return <div>로딩중...</div>;
+  console.log(error, userData);
+  if (!error && userData) {
+    console.log('로그인됨', userData);
+    return <Navigate to="/workspace/sleact/channel/일반" />;
   }
-
-  if (data) {
-    return <Navigate replace to="/workspace/sleact/channel/일반" />;
-  }
-
-  // console.log(error, userData);
-  // if (!error && userData) {
-  //   console.log('로그인됨', userData);
-  //   return <Redirect to="/workspace/sleact/channel/일반" />;
-  // }
 
   return (
     <div id="container">
@@ -69,7 +61,7 @@ const LogIn = () => {
       </Form>
       <LinkContainer>
         아직 회원이 아니신가요?&nbsp;
-        <Link to="/signup">회원가입 하러가기</Link>
+        <a href="/signup">회원가입 하러가기</a>
       </LinkContainer>
     </div>
   );
