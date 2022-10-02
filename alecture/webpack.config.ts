@@ -1,23 +1,20 @@
 import path from 'path';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
-import webpack, { Configuration as WebpackConfiguration } from "webpack";
-import { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
-
+import webpack, { Configuration as WebpackConfiguration } from 'webpack';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
 
 interface Configuration extends WebpackConfiguration {
   devServer?: WebpackDevServerConfiguration;
 }
-
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const config: Configuration = {
   name: 'sleact',
   mode: isDevelopment ? 'development' : 'production',
-  devtool: !isDevelopment ? 'hidden-source-map' : 'eval',
+  devtool: !isDevelopment ? 'hidden-source-map' : 'inline-source-map',
   resolve: {
-    //바벨이 처리할 확정자 목록
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
       '@hooks': path.resolve(__dirname, 'hooks'),
@@ -31,10 +28,10 @@ const config: Configuration = {
   entry: {
     app: './client',
   },
+  target: ['web', 'es5'],
   module: {
     rules: [
       {
-        //js를 tsx파일에 적용
         test: /\.tsx?$/,
         loader: 'babel-loader',
         options: {
@@ -49,23 +46,22 @@ const config: Configuration = {
             '@babel/preset-react',
             '@babel/preset-typescript',
           ],
-          //핫 리로딩 적용
           env: {
             development: {
-              plugins: [require.resolve('react-refresh/babel')],
+              plugins: [['@emotion/babel-plugin', { sourceMap: true }], require.resolve('react-refresh/babel')],
+            },
+            production: {
+              plugins: ['@emotion/babel-plugin'],
             },
           },
         },
-        exclude: path.join(__dirname, 'node_modules'),
       },
       {
-        //css파일을 js파일로 변환
         test: /\.css?$/,
         use: ['style-loader', 'css-loader'],
       },
     ],
   },
-  //핫리로딩 플러그인
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       async: false,
@@ -80,9 +76,8 @@ const config: Configuration = {
     filename: '[name].js',
     publicPath: '/dist/',
   },
-  //WSD 적용
   devServer: {
-    historyApiFallback: true, // react router
+    historyApiFallback: true,
     port: 3090,
     devMiddleware: { publicPath: '/dist/' },
     static: { directory: path.resolve(__dirname) },
@@ -90,6 +85,7 @@ const config: Configuration = {
       '/api/': {
         target: 'http://localhost:3095',
         changeOrigin: true,
+        ws: true,
       },
     },
   },
@@ -97,12 +93,18 @@ const config: Configuration = {
 
 if (isDevelopment && config.plugins) {
   config.plugins.push(new webpack.HotModuleReplacementPlugin());
-  config.plugins.push(new ReactRefreshWebpackPlugin());
-  
+  config.plugins.push(
+    new ReactRefreshWebpackPlugin({
+      overlay: {
+        useURLPolyfill: true,
+      },
+    }),
+  );
+  config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'server', openAnalyzer: false }));
 }
 if (!isDevelopment && config.plugins) {
   config.plugins.push(new webpack.LoaderOptionsPlugin({ minimize: true }));
-  
+  config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
 }
 
 export default config;
