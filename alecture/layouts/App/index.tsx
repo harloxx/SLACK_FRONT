@@ -20,8 +20,10 @@ const App = () => {
     <Routes>
       <Route path="/login" element={<LogIn />} />
       <Route path="/signup" element={<SignUp />} />
-      <Route path="/workspace" element={<Workspace />} />
+      <Route path="/workspace/sleact" element={<Workspace />} />
+      <Route path="/workspace/:workspace" element={<Workspace />} />
     </Routes>
+      // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터가 됨
   );
 };
 
