@@ -1,4 +1,4 @@
-import Modal  from '@components/Modal';
+import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
 import { Button, Input, Label } from '@pages/SignUp/styles';
 import { IChannel, IUser } from '@typings/db';
@@ -17,7 +17,7 @@ interface Props {
 const CreateChannelModal: VFC<Props> = ({ show, onCloseModal, setShowCreateChannelModal }) => {
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput('');
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
-  const { data: userData, error } = useSWR<IUser | false>('/api/users', fetcher, {
+  const { data: userData, error } = useSWR<IUser | false>(`/api/users`, fetcher, {
     dedupingInterval: 2000, // 2초
   });
   const { data: channelData, mutate: revalidateChannel } = useSWR<IChannel[]>(
@@ -48,7 +48,7 @@ const CreateChannelModal: VFC<Props> = ({ show, onCloseModal, setShowCreateChann
           toast.error(error.response?.data, { position: 'bottom-center' });
         });
     },
-    [newChannel],
+    [workspace, newChannel],
   );
 
   return (

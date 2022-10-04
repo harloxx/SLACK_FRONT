@@ -23,7 +23,7 @@ const App = () => {
       <Route path="/workspace/sleact/channel/일반" element={<Workspace />} />
       <Route path="/workspace/:workspace" element={<Workspace />} />
     </Routes>
-      // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터가 됨
+    // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터가 됨
   );
 };
 
