@@ -31,13 +31,15 @@ import useInput from '@hooks/useInput';
 import { Link } from 'react-router-dom';
 import { IUser } from '@typings/db';
 import { Button, Input, Label } from '@pages/SignUp/styles';
+import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
+import InviteChannelModal from '@components/InviteChannelModal';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
 const Workspace: VFC = () => {
   // const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false); 
+  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [shaowUserMenu, setShowUserMenu] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
@@ -45,8 +47,7 @@ const Workspace: VFC = () => {
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
-  // const { data, error, revalidate, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
-  const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher); 
+  const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
 
   const onLogout = useCallback(() => {
     axios
@@ -59,7 +60,7 @@ const Workspace: VFC = () => {
   }, []);
 
   const onClickUserProfile = useCallback((e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setShowUserMenu((prev) => !prev);
   }, []);
 
@@ -67,27 +68,35 @@ const Workspace: VFC = () => {
     return <Navigate to="/login" />;
   }
 
-  const onClickCreateWorkspace = useCallback((e) => {
-  e.preventDefault(); 
-  if (!newWorkspace || newWorkspace.trim()) return; // 띄어쓰기까지 막기
-  if (!newUrl || newUrl.trim()) return;
-  axios.post('http://localhost:3095/api/woekspaces', {
-    workspace: newWorkspace, 
-    url: newUrl,
-  }, {
-    withCredentials: true, 
-  }) // 이게 있어야 로그인된 상태를 쿠키 전달로 알 수 있음
-  .then(() => {
-      // revalidate(); 
-      setShowCreateWorkspaceModal(false); 
-      setNewWorkpsace(''); 
-      setNewUrl(''); 
-  })
-  .catch((error) => {
-    console.dir(error); 
-    toast.error(error.response?.data, { position: 'bottom-center' });
-  })
-  }, [newWorkspace, newUrl]); 
+  const onClickCreateWorkspace = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!newWorkspace || newWorkspace.trim()) return; // 띄어쓰기까지 막기
+      if (!newUrl || newUrl.trim()) return;
+      axios
+        .post(
+          'http://localhost:3095/api/woekspaces',
+          {
+            workspace: newWorkspace,
+            url: newUrl,
+          },
+          {
+            withCredentials: true,
+          },
+        ) // 이게 있어야 로그인된 상태를 쿠키 전달로 알 수 있음
+        .then(() => {
+          mutate();
+          setShowCreateWorkspaceModal(false);
+          setNewWorkpsace('');
+          setNewUrl('');
+        })
+        .catch((error) => {
+          console.dir(error);
+          toast.error(error.response?.data, { position: 'bottom-center' });
+        });
+    },
+    [newWorkspace, newUrl],
+  );
 
   const onCreateWorkspace = useCallback(
     (e) => {
@@ -96,7 +105,7 @@ const Workspace: VFC = () => {
       if (!newUrl || !newUrl.trim()) return;
       axios
         .post(
-          '/api/workspaces',
+          `/api/workspaces`,
           {
             workspace: newWorkspace,
             url: newUrl,
@@ -122,6 +131,8 @@ const Workspace: VFC = () => {
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
+    setShowInviteWorkspaceModal(false);
+    setShowInviteChannelModal(false);
   }, []);
 
   const toggleWorkspaceModal = useCallback(() => {
@@ -130,6 +141,10 @@ const Workspace: VFC = () => {
 
   const onClickAddChannel = useCallback(() => {
     setShowCreateChannelModal(true);
+  }, []);
+
+  const onClickInviteWorkspace = useCallback(() => {
+    setShowInviteWorkspaceModal(true);
   }, []);
 
   return (
@@ -156,10 +171,10 @@ const Workspace: VFC = () => {
         </RightMenu>
       </Header>
       <WorkspaceWrapper>
-      <Workspaces>
+        <Workspaces>
           {userData?.Workspaces.map((ws) => {
             return (
-              <Link key={ws.id} to={`/workspace/${123}/channel/일반`}>
+              <Link key={ws.id} to={`/workspace/${123}/channel/일반/*`}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
               </Link>
             );
@@ -167,14 +182,13 @@ const Workspace: VFC = () => {
           <AddButton onClick={onClickCreateWorkspace}></AddButton>
         </Workspaces>
         <Channels>
-          <WorkspaceName onClick= {toggleWorkspaceModal}>
-            Sleact</WorkspaceName>
+          <WorkspaceName onClick={toggleWorkspaceModal}>Sleact</WorkspaceName>
           <MenuScroll>
-            <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{top: 95, left: 80}} >
+            <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
               <WorkspaceModal>
-              <h2>Sleact</h2>
-              <button onClick={onClickAddChannel}>채널 만들기</button>
-              <button onClick={onLogout}>로그아웃</button>
+                <h2>Sleact</h2>
+                <button onClick={onClickAddChannel}>채널 만들기</button>
+                <button onClick={onLogout}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
           </MenuScroll>
@@ -203,6 +217,16 @@ const Workspace: VFC = () => {
         show={showCreateChannelModal}
         onCloseModal={onCloseModal}
         setShowCreateChannelModal={setShowCreateChannelModal}
+      />
+      <InviteWorkspaceModal
+        show={showInviteWorkspaceModal}
+        onCloseModal={onCloseModal}
+        setShowInviteWorkspaceModal={setShowInviteWorkspaceModal}
+      />
+      <InviteChannelModal
+        show={showInviteChannelModal}
+        onCloseModal={onCloseModal}
+        setShowInviteChannelModal={setShowInviteChannelModal}
       />
     </div>
     // 주소 설계 **

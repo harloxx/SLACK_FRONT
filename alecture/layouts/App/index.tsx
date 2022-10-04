@@ -5,7 +5,7 @@ const SignUp = loadable(() => import('@pages/SignUp'));
 // import LogIn from "@pages/LogIn";
 import React from 'react';
 import loadable from '@loadable/component';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Workspace from '@layouts/Workspace'; // 라우터에서는 WS만 등록해두기
 
 //첫 시작
@@ -18,12 +18,13 @@ import Workspace from '@layouts/Workspace'; // 라우터에서는 WS만 등록�
 const App = () => {
   return (
     <Routes>
+      {/* <Navigate path="/" to="/login" />  */}
       <Route path="/login" element={<LogIn />} />
       <Route path="/signup" element={<SignUp />} />
-      <Route path="/workspace/sleact" element={<Workspace />} />
+      {/* <Route path="/workspace/sleact" element={<Workspace />} /> */}
       <Route path="/workspace/:workspace" element={<Workspace />} />
     </Routes>
-      // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터가 됨
+    // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터가 됨
   );
 };
 
