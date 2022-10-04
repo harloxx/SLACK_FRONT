@@ -31,8 +31,6 @@ import useInput from '@hooks/useInput';
 import { Link } from 'react-router-dom';
 import { IUser } from '@typings/db';
 import { Button, Input, Label } from '@pages/SignUp/styles';
-import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
-import InviteChannelModal from '@components/InviteChannelModal';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
@@ -47,6 +45,7 @@ const Workspace: VFC = () => {
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
+  // const { data, error, revalidate, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
   const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
 
   const onLogout = useCallback(() => {
@@ -85,7 +84,7 @@ const Workspace: VFC = () => {
           },
         ) // 이게 있어야 로그인된 상태를 쿠키 전달로 알 수 있음
         .then(() => {
-          mutate();
+          // revalidate();
           setShowCreateWorkspaceModal(false);
           setNewWorkpsace('');
           setNewUrl('');
@@ -105,7 +104,7 @@ const Workspace: VFC = () => {
       if (!newUrl || !newUrl.trim()) return;
       axios
         .post(
-          `/api/workspaces`,
+          '/api/workspaces',
           {
             workspace: newWorkspace,
             url: newUrl,
@@ -131,8 +130,6 @@ const Workspace: VFC = () => {
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
-    setShowInviteWorkspaceModal(false);
-    setShowInviteChannelModal(false);
   }, []);
 
   const toggleWorkspaceModal = useCallback(() => {
@@ -141,10 +138,6 @@ const Workspace: VFC = () => {
 
   const onClickAddChannel = useCallback(() => {
     setShowCreateChannelModal(true);
-  }, []);
-
-  const onClickInviteWorkspace = useCallback(() => {
-    setShowInviteWorkspaceModal(true);
   }, []);
 
   return (
@@ -174,7 +167,7 @@ const Workspace: VFC = () => {
         <Workspaces>
           {userData?.Workspaces.map((ws) => {
             return (
-              <Link key={ws.id} to={`/workspace/${123}/channel/일반/*`}>
+              <Link key={ws.id} to={`/workspace/${123}/channel/일반`}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
               </Link>
             );
@@ -217,16 +210,6 @@ const Workspace: VFC = () => {
         show={showCreateChannelModal}
         onCloseModal={onCloseModal}
         setShowCreateChannelModal={setShowCreateChannelModal}
-      />
-      <InviteWorkspaceModal
-        show={showInviteWorkspaceModal}
-        onCloseModal={onCloseModal}
-        setShowInviteWorkspaceModal={setShowInviteWorkspaceModal}
-      />
-      <InviteChannelModal
-        show={showInviteChannelModal}
-        onCloseModal={onCloseModal}
-        setShowInviteChannelModal={setShowInviteChannelModal}
       />
     </div>
     // 주소 설계 **
