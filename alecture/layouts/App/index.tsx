@@ -1,12 +1,13 @@
 //페이지 단위로 코드 스플리팅
 const LogIn = loadable(() => import('@pages/LogIn'));
 const SignUp = loadable(() => import('@pages/SignUp'));
+const Workspace = loadable(() => import('@layouts/Workspace'));
 
 // import LogIn from "@pages/LogIn";
 import React from 'react';
 import loadable from '@loadable/component';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Workspace from '@layouts/Workspace'; // 라우터에서는 WS만 등록해두기
+// 라우터에서는 WS만 등록해두기
 
 //첫 시작
 //npm run dev하면 웹팩 실행되면서
@@ -20,8 +21,8 @@ const App = () => {
     <Routes>
       <Route path="/login" element={<LogIn />} />
       <Route path="/signup" element={<SignUp />} />
-      <Route path="/workspace/sleact/channel/일반" element={<Workspace />} />
-      <Route path="/workspace/:workspace" element={<Workspace />} />
+      {/* <Route path="/workspace/sleact/channel/일반" element={<Workspace />} /> */}
+      <Route path="/workspace/:workspace/*" element={<Workspace />} />
     </Routes>
     // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터가 됨
   );
