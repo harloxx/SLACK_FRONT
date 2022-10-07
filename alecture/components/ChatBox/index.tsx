@@ -14,6 +14,7 @@ interface Props {
   onChangeChat: (e: any) => void;
   placeholder?: string;
 }
+//chatBox가 채널,디엠에서 재사용되니까(두루두루쓰니까) onsubmitForm을 props로 올려준다.
 const ChatBox: VFC<Props> = ({ chat, onSubmitForm, onChangeChat, placeholder }) => {
   const { workspace } = useParams<{ workspace: string }>();
   const {
@@ -23,7 +24,10 @@ const ChatBox: VFC<Props> = ({ chat, onSubmitForm, onChangeChat, placeholder }) 
   } = useSWR<IUser | false>('/api/users', fetcher, {
     dedupingInterval: 2000, // 2초
   });
-  const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
+  const { data: memberData } = useSWR<IUser[]>(
+    userData ? `http://localhost:3095/api/workspaces/${workspace}/members` : null,
+    fetcher,
+  );
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
