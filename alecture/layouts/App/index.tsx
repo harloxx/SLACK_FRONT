@@ -24,7 +24,11 @@ const App = () => {
       {/* <Route path="/workspace/sleact/channel/일반" element={<Workspace />} /> */}
       <Route path="/workspace/:workspace/*" element={<Workspace />} />
     </Routes>
-    // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터가 됨
+    // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터(사용자가 자유롭게 바꿀 수 있음)가 됨
+    // /workspace/test해도 Workspace로 가고, /workspace/sleact해도 Workspace로 간다.
+    // 그렇게 되면 주소만으로 데이터를 알 수 있게 된다. 예를들어 /slect/channel/1
+    // 이 데이터를 useParam을 사용해 :부분에 넣어주면 효과적!
+    // 유저의 정보(어디 워크페이스, 어디 채널인지) 를 주소만 봐도 알 수 있게 해준다면 베스트!
   );
 };
 

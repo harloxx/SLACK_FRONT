@@ -10,10 +10,10 @@ import useSWR from 'swr';
 
 const DMList: FC = () => {
   const { workspace } = useParams<{ workspace?: string }>();
+  //워크스페이스에 참여해있는 멤버들을 다 불러온다.
   const {
     data: userData,
     error,
-
     mutate,
   } = useSWR<IUser>('http://localhost:3095/api/users', fetcher, {
     dedupingInterval: 2000, // 2초
@@ -23,6 +23,7 @@ const DMList: FC = () => {
     fetcher,
   );
 
+  //멤버 목록 보여주는 state
   const [channelCollapse, setChannelCollapse] = useState(false);
   const [onlineList, setOnlineList] = useState<number[]>([]);
 
