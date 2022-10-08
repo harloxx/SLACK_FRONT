@@ -42,6 +42,7 @@ const DirectMessage = () => {
     },
     [chat, chatData, myData, userData, workspace, id],
   );
+  //데이터 없으면 화면 안 띄움
   if (!userData || !myData) {
     return null;
   }
@@ -51,7 +52,9 @@ const DirectMessage = () => {
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname}</span>
       </Header>
+      {/* 채팅 올라가는 부분 */}
       <ChatList />
+      {/* 채팅 치는 부분 */}
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
     </Container>
   );

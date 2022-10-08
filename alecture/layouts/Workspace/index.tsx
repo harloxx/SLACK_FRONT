@@ -40,6 +40,7 @@ import useSocket from '@hooks/useSocket';
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
+//Channel과 DM을 포괄하는 ui
 const Workspace: VFC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
@@ -55,7 +56,7 @@ const Workspace: VFC = () => {
   //":데이터이름" 을 지어줄 것!
   //여기서 문제 발생, revalidate안쓰니까 데이터가 바로바로 최신으로 적용불가
   //시간이 흘러야 채널이 추가된다...
-  const [socket, disconnectSocket] = useSocket(workspace);
+  const [socket, disconnect] = useSocket(workspace);
   const {
     data: userData,
     error,
@@ -72,6 +73,23 @@ const Workspace: VFC = () => {
     userData ? `http://localhost:3095/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
+
+  useEffect(() => {
+    if (channelData && userData && socket) {
+      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) }, [
+        socket,
+        channelData,
+        userData,
+      ]);
+    }
+  });
+
+  //workspace가 바뀔 때, 기존 workspace를 바꿔야 함
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [workspace]);
 
   const onLogout = useCallback(() => {
     axios

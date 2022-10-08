@@ -14,7 +14,9 @@ interface Props {
   onChangeChat: (e: any) => void;
   placeholder?: string;
 }
-//chatBox가 채널,디엠에서 재사용되니까(두루두루쓰니까) onsubmitForm을 props로 올려준다.
+//chatBox가 채널,디엠에서 사용되니까 해당 컴포넌트에서 DM관련 구체적 코드를 쓰면 안된다.
+//따라서 onsubmitForm을 props로 올려준다.
+//재사용되는데 공통되는 데이터는 SWR쓰고 다른 데이터는 props로 관리한다.
 const ChatBox: VFC<Props> = ({ chat, onSubmitForm, onChangeChat, placeholder }) => {
   const { workspace } = useParams<{ workspace: string }>();
   const {
