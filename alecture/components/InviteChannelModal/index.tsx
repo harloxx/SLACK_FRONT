@@ -23,6 +23,7 @@ const InviteChannelModal: FC<Props> = ({ show, onCloseModal, setShowInviteChanne
     fetcher,
   );
 
+  //채널에 멤버 초대하는 함수
   const onInviteMember = useCallback(
     (e) => {
       e.preventDefault();

@@ -35,10 +35,12 @@ import useSWR from 'swr';
 import gravatar from 'gravatar';
 import { toast } from 'react-toastify';
 import CreateChannelModal from '@components/CreateChannelModal';
+import useSocket from '@hooks/useSocket';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
+//Channel과 DM을 포괄하는 ui
 const Workspace: VFC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
@@ -49,7 +51,12 @@ const Workspace: VFC = () => {
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
-  const { workspace } = useParams<{ workspace: string }>();
+  const { workspace } = useParams<{ workspace?: string }>();
+  //서로 다른 api에서 data라는 같은 이름으로 데이터를 받아올 때,
+  //":데이터이름" 을 지어줄 것!
+  //여기서 문제 발생, revalidate안쓰니까 데이터가 바로바로 최신으로 적용불가
+  //시간이 흘러야 채널이 추가된다...
+  const [socket, disconnect] = useSocket(workspace);
   const {
     data: userData,
     error,
@@ -57,6 +64,7 @@ const Workspace: VFC = () => {
   } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher, {
     dedupingInterval: 2000, // 2초
   });
+  //조건부요청을 통해 로그인 되어있을 때만 데이터를 받아오도록
   const { data: channelData } = useSWR<IChannel[]>(
     userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
     fetcher,
@@ -66,6 +74,23 @@ const Workspace: VFC = () => {
     fetcher,
   );
 
+  useEffect(() => {
+    if (channelData && userData && socket) {
+      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) }, [
+        socket,
+        channelData,
+        userData,
+      ]);
+    }
+  });
+
+  //workspace가 바뀔 때, 기존 workspace를 바꿔야 함
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [workspace]);
+
   const onLogout = useCallback(() => {
     axios
       .post('http://localhost:3095/api/users/logout', null, {
@@ -73,6 +98,10 @@ const Workspace: VFC = () => {
       })
       .then(() => {
         mutate(false, false);
+      })
+      .catch((error) => {
+        console.dir(error);
+        toast.error(error.response?.data, { position: 'bottom-center' });
       });
   }, []);
 

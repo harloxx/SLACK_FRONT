@@ -6,7 +6,7 @@ import React, { useCallback, useState } from 'react';
 import { Navigate } from 'react-router';
 
 import useSWR from 'swr';
-
+//회원가입 -> 워크스페이스에 초대 -> 초대된 사람들 중에서 채널에 초대
 const LogIn = () => {
   const { data: userData, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
   const [logInError, setLogInError] = useState(false);
