@@ -48,6 +48,7 @@ const Chat: VFC<Props> = ({ data }) => {
       <div className="chat-text">
         <div className="chat-user">
           <b>{user.nickname}</b>
+          {/* 해당날짜를 저 포멧으로 변경하라 */}
           <span>{dayjs(data.createdAt).format('h:mm A')}</span>
         </div>
         <p>{result}</p>

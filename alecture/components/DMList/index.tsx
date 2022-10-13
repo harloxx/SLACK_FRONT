@@ -39,18 +39,19 @@ const DMList: FC = () => {
     setOnlineList([]);
   }, [workspace]);
 
-  //누가 온라인에 있는지
+  //누가 온라인에 있는지(소켓에서 받아온다.) 받아와서 state에 저장한다.
   useEffect(() => {
     socket?.on('onlineList', (data: number[]) => {
       setOnlineList(data);
     });
     // socket?.on('dm', );
     // console.log('socket on dm', socket?.hasListeners('dm'),socket);
+    //한번 연결해줬으면 두번 연결하지 않게 off를 해준다.
     return () => {
       // socket?.off('dm',onmessage);
       socket?.off('onlineList');
     };
-  });
+  }, [socket]);
 
   return (
     <>

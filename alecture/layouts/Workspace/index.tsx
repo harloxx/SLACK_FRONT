@@ -1,4 +1,3 @@
-// react-dom 버전 강의와 다름 (강의 v6)
 import ChannelList from '@components/ChannelList';
 import DMList from '@components/DMList';
 import InviteChannelModal from '@components/InviteChannelModal';
@@ -6,7 +5,7 @@ import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import Menu from '@components/Menu';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
-
+import useSocket from '@hooks/useSocket';
 import {
   AddButton,
   Channels,
@@ -35,12 +34,10 @@ import useSWR from 'swr';
 import gravatar from 'gravatar';
 import { toast } from 'react-toastify';
 import CreateChannelModal from '@components/CreateChannelModal';
-import useSocket from '@hooks/useSocket';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
-
-//Channel과 DM을 포괄하는 ui
+//children 없으면 VFC로 받는다.
 const Workspace: VFC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
@@ -51,57 +48,42 @@ const Workspace: VFC = () => {
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
-  const { workspace } = useParams<{ workspace?: string }>();
-  //서로 다른 api에서 data라는 같은 이름으로 데이터를 받아올 때,
-  //":데이터이름" 을 지어줄 것!
-  //여기서 문제 발생, revalidate안쓰니까 데이터가 바로바로 최신으로 적용불가
-  //시간이 흘러야 채널이 추가된다...
-  const [socket, disconnect] = useSocket(workspace);
+  const { workspace } = useParams<{ workspace: string }>();
+  //자식에게 props로 전달할 경우, 자식의 리렌더링을 막기위해 memo 훅을 썼었는데
+  //SWR쓰면서 부모만 바뀌거나, 자식만 바뀌거나가 되면서 prop를 잘 안씀
+
+  //데이터 타입이 IUser이거나 false일 수 있다.
   const {
     data: userData,
     error,
     mutate,
-  } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher, {
+  } = useSWR<IUser | false>('/api/users', fetcher, {
     dedupingInterval: 2000, // 2초
   });
-  //조건부요청을 통해 로그인 되어있을 때만 데이터를 받아오도록
-  const { data: channelData } = useSWR<IChannel[]>(
-    userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
-    fetcher,
-  );
-  const { data: memberData } = useSWR<IUser[]>(
-    userData ? `http://localhost:3095/api/workspaces/${workspace}/members` : null,
-    fetcher,
-  );
+  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
+  const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
+  const [socket, disconnect] = useSocket(workspace);
 
+  //'login'이란 이벤트이름으로 서버에 뒷내용을 보내라.
   useEffect(() => {
     if (channelData && userData && socket) {
-      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) }, [
-        socket,
-        channelData,
-        userData,
-      ]);
+      console.log(socket);
+      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
     }
-  });
-
-  //workspace가 바뀔 때, 기존 workspace를 바꿔야 함
+  }, [socket, channelData, userData]);
   useEffect(() => {
     return () => {
       disconnect();
     };
-  }, [workspace]);
+  }, [workspace, disconnect]);
 
   const onLogout = useCallback(() => {
     axios
-      .post('http://localhost:3095/api/users/logout', null, {
+      .post('/api/users/logout', null, {
         withCredentials: true,
       })
       .then(() => {
         mutate(false, false);
-      })
-      .catch((error) => {
-        console.dir(error);
-        toast.error(error.response?.data, { position: 'bottom-center' });
       });
   }, []);
 
@@ -125,7 +107,7 @@ const Workspace: VFC = () => {
       if (!newUrl || !newUrl.trim()) return;
       axios
         .post(
-          'http://localhost:3095/api/workspaces',
+          '/api/workspaces',
           {
             workspace: newWorkspace,
             url: newUrl,
@@ -194,6 +176,7 @@ const Workspace: VFC = () => {
       </Header>
       <WorkspaceWrapper>
         <Workspaces>
+          {/* 다른 워크스페이스 클릭시 주소 생성 */}
           {userData?.Workspaces.map((ws) => {
             return (
               <Link key={ws.id} to={`/workspace/${123}/channel/일반`}>

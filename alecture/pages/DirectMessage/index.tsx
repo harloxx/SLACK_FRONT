@@ -11,11 +11,13 @@ import { useParams } from 'react-router';
 import useSWR from 'swr';
 import gravatar from 'gravatar';
 import { Header } from './styles';
+import makeSection from '@utils/makeSection';
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
   //해당 워크스페이스의 해당멤버
-  //없는 주소로 요청보내면 json파일이 오는 게 아니라 html파일이 온다.
+  //디엠리스트에서 사용자를 클릭하면 주소가 그 사용자 아이디로 바뀌니까
+  //(없는 주소로 요청보내면 json파일이 오는 게 아니라 html파일이 온다.)
   const { data: userData } = useSWR(`http://localhost:3095/api/workspaces/${workspace}/users/${id}`, fetcher);
   //내 정보(보내는 사람이 누군지 알기위해)
   const { data: myData } = useSWR(`http://localhost:3095/api/users`, fetcher);
@@ -46,6 +48,7 @@ const DirectMessage = () => {
   if (!userData || !myData) {
     return null;
   }
+  const chatSections = makeSection(chatData ? [...chatData].reverse() : []);
   return (
     <Container>
       <Header>
@@ -53,7 +56,7 @@ const DirectMessage = () => {
         <span>{userData.nickname}</span>
       </Header>
       {/* 채팅 올라가는 부분 */}
-      <ChatList />
+      <ChatList chatSections={chatSections} />
       {/* 채팅 치는 부분 */}
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
     </Container>

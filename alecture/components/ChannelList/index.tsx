@@ -21,6 +21,7 @@ const ChannelList: FC = () => {
     userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
     fetcher,
   );
+  //토글바 열려있는 게 기본값
   const [channelCollapse, setChannelCollapse] = useState(false);
 
   const toggleChannelCollapse = useCallback(() => {
@@ -40,6 +41,7 @@ const ChannelList: FC = () => {
         <span>Channels</span>
       </h2>
       <div>
+        {/* 토글바가 열려있다면 채널 정보를 띄운다. */}
         {!channelCollapse &&
           channelData?.map((channel) => {
             return (
