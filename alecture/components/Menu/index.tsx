@@ -7,12 +7,13 @@ interface Props {
   style: CSSProperties;
   closeButton?: boolean;
 }
+//children props 안받아서 FC로 씀
 const Menu: FC<Props> = ({ children, style, show, onCloseModal, closeButton }) => {
   const stopPropagation = useCallback((e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
   }, []);
 
-  if(!show) return null;
+  if (!show) return null;
   return (
     <CreateMenu onClick={onCloseModal}>
       <div style={style} onClick={stopPropagation}>

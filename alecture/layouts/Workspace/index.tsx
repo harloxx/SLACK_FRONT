@@ -52,7 +52,7 @@ const Workspace: VFC = () => {
   //자식에게 props로 전달할 경우, 자식의 리렌더링을 막기위해 memo 훅을 썼었는데
   //SWR쓰면서 부모만 바뀌거나, 자식만 바뀌거나가 되면서 prop를 잘 안씀
 
-  //데이터 타입이 IUser이거나 false일 수 있다.
+  //데이터 타입이 IUser이거나 false(로그인 안되어있으면)일 수 있다.
   const {
     data: userData,
     error,

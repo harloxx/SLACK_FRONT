@@ -13,7 +13,7 @@ export const Form = styled.form`
   font-size: 15px;
   width: 100%;
   border-radius: 4px;
-  border: 1px solid rgb(29, 28, 29);
+  border: 1px solid gray;
 `;
 
 export const MentionsTextarea = styled(MentionsInput)`
@@ -57,8 +57,9 @@ export const Toolbox = styled.div`
 
 export const SendButton = styled.button`
   position: absolute;
-  right: 5px;
-  top: 5px;
+  height: 35px;
+  right: 3px;
+  top: 3px;
 `;
 
 export const EachMention = styled.button<{ focus: boolean }>`
