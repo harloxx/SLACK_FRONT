@@ -6,6 +6,7 @@ import React, { FC, useCallback, useState } from 'react';
 import { useParams } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import useSWR from 'swr';
+
 //SWR이 나온 후부터 props의 사용이 급격히 줄어들음. 하지만 함수나 스타일 등은 여전히 props의 사용이 불가피함.
 const ChannelList: FC = () => {
   const { workspace } = useParams<{ workspace?: string }>();
@@ -21,6 +22,7 @@ const ChannelList: FC = () => {
     userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
     fetcher,
   );
+  //토글바 열려있는 게 기본값
   const [channelCollapse, setChannelCollapse] = useState(false);
 
   const toggleChannelCollapse = useCallback(() => {
@@ -31,15 +33,12 @@ const ChannelList: FC = () => {
     <>
       <h2>
         <CollapseButton collapse={channelCollapse} onClick={toggleChannelCollapse}>
-          <i
-            className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
-            data-qa="channel-section-collapse"
-            aria-hidden="true"
-          />
+          <p>Ⅴ </p>
         </CollapseButton>
         <span>Channels</span>
       </h2>
       <div>
+        {/* 토글바가 열려있다면 채널 정보를 띄운다. */}
         {!channelCollapse &&
           channelData?.map((channel) => {
             return (
