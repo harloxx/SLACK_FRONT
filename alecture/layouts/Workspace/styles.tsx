@@ -155,7 +155,7 @@ export const WorkspaceModal = styled.div`
     height: 28px;
     padding: 4px;
     border: none;
-    background: transparent;
+    background: orange;
     border-top: 1px solid rgb(28, 29, 28);
     cursor: pointer;
     &:last-of-type {
@@ -185,7 +185,7 @@ export const WorkspaceButton = styled.button`
   height: 40px;
   border-radius: 10px;
   background: white;
-  border: 3px solid #3f0e40;
+  border: 3px solid orange;
   margin-bottom: 15px;
   font-size: 18px;
   font-weight: 700;

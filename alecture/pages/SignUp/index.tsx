@@ -57,7 +57,7 @@ const SignUp = () => {
   );
 
   if (userData) {
-    return <Navigate to="/workspace/sleact/channel/일반" />;
+    return <Navigate to="/workspace/sleact/channel/normal" />;
   }
 
   return (
@@ -92,6 +92,7 @@ const SignUp = () => {
               value={passwordCheck}
               onChange={onChangePasswordCheck}
             />
+            {/*왼쪽 문장이 참(true)이라면 &&연산자 오른쪽을 출력한다*/}
           </div>
           {mismatchError && <Error>비밀번호가 일치하지 않습니다.</Error>}
           {!nickname && <Error>닉네임을 입력해주세요.</Error>}

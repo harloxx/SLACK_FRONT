@@ -65,12 +65,14 @@ const Workspace: VFC = () => {
   const [socket, disconnect] = useSocket(workspace);
 
   //'login'이란 이벤트이름으로 서버에 뒷내용을 보내라.
+
   useEffect(() => {
     if (channelData && userData && socket) {
       console.log(socket);
       socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
     }
   }, [socket, channelData, userData]);
+
   useEffect(() => {
     return () => {
       disconnect();
@@ -103,7 +105,7 @@ const Workspace: VFC = () => {
   const onCreateWorkspace = useCallback(
     (e) => {
       e.preventDefault();
-      if (!newWorkspace || !newWorkspace.trim()) return;
+      if (!newWorkspace || !newWorkspace.trim()) return; //문자열 좌우 공백 제거
       if (!newUrl || !newUrl.trim()) return;
       axios
         .post(
@@ -149,15 +151,15 @@ const Workspace: VFC = () => {
     setShowInviteWorkspaceModal(true);
   }, []);
 
-  if (!userData) {
+  /*if (!userData) {
     return <Navigate to="/login" />;
-  }
+  }*/
 
   return (
     <div>
       <Header>
         <RightMenu>
-          <span onClick={onClickUserProfile}>
+          {/* <span onClick={onClickUserProfile}>
             <ProfileImg src={gravatar.url(userData.email, { s: '28px', d: 'retro' })} alt={userData.nickname} />
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onCloseUserProfile}>
@@ -171,20 +173,20 @@ const Workspace: VFC = () => {
                 <LogOutButton onClick={onLogout}>로그아웃</LogOutButton>
               </Menu>
             )}
-          </span>
+            </span> */}
         </RightMenu>
       </Header>
       <WorkspaceWrapper>
         <Workspaces>
-          {/* 다른 워크스페이스 클릭시 주소 생성 */}
+          {/* 다른 워크스페이스 클릭시 주소 생성
           {userData?.Workspaces.map((ws) => {
             return (
-              <Link key={ws.id} to={`/workspace/${123}/channel/일반`}>
+              <Link key={ws.id} to={`/workspace/${123}/channel/normal`}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
               </Link>
             );
           })}
-          <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
+          <AddButton onClick={onClickCreateWorkspace}>+</AddButton> */}
         </Workspaces>
         <Channels>
           <WorkspaceName onClick={toggleWorkspaceModal}>Sleact</WorkspaceName>

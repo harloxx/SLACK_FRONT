@@ -30,6 +30,7 @@ const DMList = () => {
     setOnlineList([]);
   }, [workspace]);
 
+  //옵셔널 체이닝 연산자(?.) 객체의 값이 없을 때 에러를 발생시키지 않고 undefined를 반환
   useEffect(() => {
     socket?.on('onlineList', (data: number[]) => {
       setOnlineList(data);
