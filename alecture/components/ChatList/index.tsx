@@ -15,6 +15,7 @@ interface Props {
 const ChatList: FC<Props> = ({ scrollbarRef, isReachingEnd, isEmpty, chatSections, setSize }) => {
   //스크롤이 가장 위로 올라왔을 때 예전 데이터 불러오기
   const onScroll = useCallback(
+    //스크롤 위치 유지
     (values) => {
       if (values.scrollTop === 0 && !isReachingEnd && !isEmpty) {
         setSize((size) => size + 1).then(() => {

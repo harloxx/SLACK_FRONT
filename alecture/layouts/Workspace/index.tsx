@@ -34,6 +34,7 @@ import useSWR from 'swr';
 import gravatar from 'gravatar';
 import { toast } from 'react-toastify';
 import CreateChannelModal from '@components/CreateChannelModal';
+import fetcherWithToken from '@utils/fetcherWithToken';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
@@ -47,30 +48,38 @@ const Workspace: VFC = () => {
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
-
   const { workspace } = useParams<{ workspace: string }>();
   //자식에게 props로 전달할 경우, 자식의 리렌더링을 막기위해 memo 훅을 썼었는데
   //SWR쓰면서 부모만 바뀌거나, 자식만 바뀌거나가 되면서 prop를 잘 안씀
 
   //데이터 타입이 IUser이거나 false(로그인 안되어있으면)일 수 있다.
+  const token = JSON.parse(localStorage.getItem('token') ?? '');
+
   const {
     data: userData,
     error,
     mutate,
-  } = useSWR<IUser | false>('/api/users', fetcher, {
+  } = useSWR<IUser | false>('http://fake-slack.shop/members/current', (url) => fetcherWithToken(url, token), {
     dedupingInterval: 2000, // 2초
   });
+
+  if (userData) {
+    console.log('usedata:', userData.id);
+  }
+
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
   const [socket, disconnect] = useSocket(workspace);
 
-  //'login'이란 이벤트이름으로 서버에 뒷내용을 보내라.
+  //'login'이란 이벤트 이름으로 서버에 뒷내용을 보내라.
+
   useEffect(() => {
     if (channelData && userData && socket) {
       console.log(socket);
       socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
     }
   }, [socket, channelData, userData]);
+
   useEffect(() => {
     return () => {
       disconnect();
@@ -103,7 +112,7 @@ const Workspace: VFC = () => {
   const onCreateWorkspace = useCallback(
     (e) => {
       e.preventDefault();
-      if (!newWorkspace || !newWorkspace.trim()) return;
+      if (!newWorkspace || !newWorkspace.trim()) return; //문자열 좌우 공백 제거
       if (!newUrl || !newUrl.trim()) return;
       axios
         .post(
@@ -149,15 +158,15 @@ const Workspace: VFC = () => {
     setShowInviteWorkspaceModal(true);
   }, []);
 
-  if (!userData) {
+  /*if (!userData) {
     return <Navigate to="/login" />;
-  }
+  }*/
 
   return (
     <div>
       <Header>
         <RightMenu>
-          <span onClick={onClickUserProfile}>
+          {/* <span onClick={onClickUserProfile}>
             <ProfileImg src={gravatar.url(userData.email, { s: '28px', d: 'retro' })} alt={userData.nickname} />
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onCloseUserProfile}>
@@ -171,20 +180,20 @@ const Workspace: VFC = () => {
                 <LogOutButton onClick={onLogout}>로그아웃</LogOutButton>
               </Menu>
             )}
-          </span>
+            </span> */}
         </RightMenu>
       </Header>
       <WorkspaceWrapper>
         <Workspaces>
-          {/* 다른 워크스페이스 클릭시 주소 생성 */}
+          {/* 다른 워크스페이스 클릭시 주소 생성
           {userData?.Workspaces.map((ws) => {
             return (
-              <Link key={ws.id} to={`/workspace/${123}/channel/일반`}>
+              <Link key={ws.id} to={`/workspace/${123}/channel/normal`}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
               </Link>
             );
           })}
-          <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
+          <AddButton onClick={onClickCreateWorkspace}>+</AddButton> */}
         </Workspaces>
         <Channels>
           <WorkspaceName onClick={toggleWorkspaceModal}>Sleact</WorkspaceName>

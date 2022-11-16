@@ -11,19 +11,22 @@ import useSWR from 'swr';
 
 interface Props {
   show: boolean;
-  onCloseModal: () => void;
-  setShowCreateChannelModal: (flag: boolean) => void;
+  onCloseModal: () => void; //리턴 타입이 void 타입
+  setShowCreateChannelModal: (flag: boolean) => void; //매개변수 타입이 boolean이고 리턴 타입이 void
 }
+
 const CreateChannelModal: VFC<Props> = ({ show, onCloseModal, setShowCreateChannelModal }) => {
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput('');
+  //객체 데이터 타입<{}>
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const { data: userData, error } = useSWR<IUser | false>('/api/users', fetcher, {
     dedupingInterval: 2000, // 2초
   });
+  //배열 데이터 타입<Type[]>
   const { data: channelData, mutate: revalidateChannel } = useSWR<IChannel[]>(
     userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
     fetcher,
-  );
+  ); //삼항 연산자
 
   const onCreateChannel = useCallback(
     (e) => {

@@ -7,6 +7,10 @@ const Workspace = loadable(() => import('@layouts/Workspace'));
 import React from 'react';
 import loadable from '@loadable/component';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import LoginPage from '@components/GoogleLogin/http';
+import LoginLoading from '@pages/LoginLoading';
+
 // 라우터에서는 WS만 등록해두기
 
 //첫 시작
@@ -23,6 +27,7 @@ const App = () => {
       <Route path="/signup" element={<SignUp />} />
       {/* <Route path="/workspace/sleact/channel/일반" element={<Workspace />} /> */}
       <Route path="/workspace/:workspace/*" element={<Workspace />} />
+      <Route path="/loading" element={<LoginLoading />} />
     </Routes>
     // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터(사용자가 자유롭게 바꿀 수 있음)가 됨
     // /workspace/test해도 Workspace로 가고, /workspace/sleact해도 Workspace로 간다.
