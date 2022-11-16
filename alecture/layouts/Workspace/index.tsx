@@ -34,6 +34,7 @@ import useSWR from 'swr';
 import gravatar from 'gravatar';
 import { toast } from 'react-toastify';
 import CreateChannelModal from '@components/CreateChannelModal';
+import fetcherWithToken from '@utils/fetcherWithToken';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
@@ -47,24 +48,30 @@ const Workspace: VFC = () => {
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
-
   const { workspace } = useParams<{ workspace: string }>();
   //자식에게 props로 전달할 경우, 자식의 리렌더링을 막기위해 memo 훅을 썼었는데
   //SWR쓰면서 부모만 바뀌거나, 자식만 바뀌거나가 되면서 prop를 잘 안씀
 
   //데이터 타입이 IUser이거나 false(로그인 안되어있으면)일 수 있다.
+  const token = JSON.parse(localStorage.getItem('token') ?? '');
+
   const {
     data: userData,
     error,
     mutate,
-  } = useSWR<IUser | false>('/api/users', fetcher, {
+  } = useSWR<IUser | false>('http://fake-slack.shop/members/current', (url) => fetcherWithToken(url, token), {
     dedupingInterval: 2000, // 2초
   });
+
+  if (userData) {
+    console.log('usedata:', userData.id);
+  }
+
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
   const [socket, disconnect] = useSocket(workspace);
 
-  //'login'이란 이벤트이름으로 서버에 뒷내용을 보내라.
+  //'login'이란 이벤트 이름으로 서버에 뒷내용을 보내라.
 
   useEffect(() => {
     if (channelData && userData && socket) {
