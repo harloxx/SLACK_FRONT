@@ -3,7 +3,9 @@ import { Button as But2, Error, Form, Header, Input, Label, LinkContainer } from
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, useNavigate } from 'react-router';
+import { SET_TOKEN } from '../../src/store/Auth';
 
 import useSWR from 'swr';
 //useInput의 return값이 []안에 변수에 대응된다.
@@ -16,7 +18,10 @@ const LogIn = () => {
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
   const nav = useNavigate();
+  const dispatch = useDispatch();
 
+  //const token2 = useSelector((state)=>state.authToken.value);
+  //console.log(token2);
   console.log(token);
 
   const onSubmit = useCallback(
@@ -37,6 +42,7 @@ const LogIn = () => {
           console.log(res.headers['authorization']);
           console.log(res.data);
           setToken(res.headers['authorization']);
+          dispatch(SET_TOKEN(res.headers['authorization'])); //store에 access token 저장
         })
         .catch((error) => {
           setLogInError(error.response?.data?.code === 401);
@@ -88,7 +94,7 @@ const LogIn = () => {
           </div>
           {logInError && <Error>이메일과 비밀번호 조합이 일치하지 않습니다.</Error>}
         </Label>
-        <But2 type="submit">로그인</But2>
+        <But2 type="submit">일반 로그인</But2>
       </Form>
 
       <But2 type="button" onClick={() => (location.href = 'http://fake-slack.shop/oauth2/authorization/google')}>
