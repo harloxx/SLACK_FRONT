@@ -8,7 +8,7 @@ const fetcherWithToken = (url: string, token: any) =>
   axios
     .get(url, {
       headers: {
-        Authorization: 'token',
+        Authorization: token,
       },
     })
     .then((result) => result.data);

@@ -53,7 +53,9 @@ const Workspace: VFC = () => {
   //SWR쓰면서 부모만 바뀌거나, 자식만 바뀌거나가 되면서 prop를 잘 안씀
   //데이터 타입이 IUser이거나 false(로그인 안되어있으면)일 수 있다.
 
+  //토큰 관리
   const token = JSON.parse(localStorage.getItem('token') ?? ''); //없을 경우 undefind 처리
+
   //토큰 전역관리 & 구글 로그인
 
   console.log('workspace', token);
@@ -68,7 +70,7 @@ const Workspace: VFC = () => {
   });
 
   if (userData) {
-    console.log('usedata:', userData.id);
+    console.log('userdata: ', userData);
   }
 
   //const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
