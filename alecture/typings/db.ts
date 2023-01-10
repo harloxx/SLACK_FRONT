@@ -1,6 +1,6 @@
 export interface IUser {
   id: number;
-  nickname: string;
+  name: string;
   email: string;
   //Workspaces: IWorkspace[];
 }
