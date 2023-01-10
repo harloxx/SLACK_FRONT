@@ -25,10 +25,13 @@ const App = () => {
     <Routes>
       <Route path="/login" element={<LogIn />} />
       <Route path="/signup" element={<SignUp />} />
-      {/* <Route path="/workspace/sleact/channel/일반" element={<Workspace />} /> */}
+
       <Route path="/workspace/:workspace/*" element={<Workspace />} />
+      
       <Route path="/loading" element={<LoginLoading />} />
     </Routes>
+
+
     // /workspace/슬리액/ 앞에 콜론을 붙이면 파라미터(사용자가 자유롭게 바꿀 수 있음)가 됨
     // /workspace/test해도 Workspace로 가고, /workspace/sleact해도 Workspace로 간다.
     // 그렇게 되면 주소만으로 데이터를 알 수 있게 된다. 예를들어 /slect/channel/1

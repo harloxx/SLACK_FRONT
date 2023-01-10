@@ -49,15 +49,13 @@ const Workspace: VFC = () => {
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
   const { workspace } = useParams<{ workspace: string }>();
+
   //자식에게 props로 전달할 경우, 자식의 리렌더링을 막기위해 memo 훅을 썼었는데
   //SWR쓰면서 부모만 바뀌거나, 자식만 바뀌거나가 되면서 prop를 잘 안씀
   //데이터 타입이 IUser이거나 false(로그인 안되어있으면)일 수 있다.
 
   //토큰 관리
-  const token = JSON.parse(localStorage.getItem('token') ?? ''); //없을 경우 undefind 처리
-
-  //토큰 전역관리 & 구글 로그인
-
+  const token = JSON.parse(localStorage.getItem('token') ?? ''); //토큰이 없을 경우 undefind 처리
   console.log('workspace', token);
 
   //유저정보 전역관리
@@ -65,14 +63,13 @@ const Workspace: VFC = () => {
     data: userData,
     error,
     mutate,
-  } = useSWR<IUser | false>('http://fake-slack.shop/members/current', (url) => fetcherWithToken(url, token), {
+  } = useSWR<IUser>('http://fake-slack.shop/members/current', (url) => fetcherWithToken(url, token), {
     dedupingInterval: 2000, // 2초마다 데이터 업데이트
   });
 
   if (userData) {
-    console.log('userdata: ', userData);
+    console.log(userData);
   }
-
   //const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
   const [socket, disconnect] = useSocket(workspace);
@@ -85,20 +82,23 @@ const Workspace: VFC = () => {
       socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
     }
   }, [socket, channelData, userData]);
+  
 */
-  useEffect(() => {
+  /*useEffect(() => {
     return () => {
       disconnect();
     };
   }, [workspace, disconnect]);
+*/
 
+  //로그아웃
   const onLogout = useCallback(() => {
     axios
-      .post('/api/users/logout', null, {
+      .post('http://fake-slack.shop/logout', null, {
         withCredentials: true,
       })
       .then(() => {
-        mutate(false, false);
+        mutate(); //mutate(false,false)였는데 에러남
       });
   }, []);
 
@@ -109,6 +109,7 @@ const Workspace: VFC = () => {
 
   const onClickUserProfile = useCallback(() => {
     setShowUserMenu((prev) => !prev);
+    console.log(userData);
   }, []);
 
   const onClickCreateWorkspace = useCallback(() => {
@@ -168,25 +169,27 @@ const Workspace: VFC = () => {
     return <Navigate to="/login" />;
   }*/
 
+  //데이터 타입 뒤에 !를 붙이면 false나 undefined가 아님을 알림
+  //.?는 optional chaining으로 에러가 발생하는 대신 undefined를 리턴
   return (
     <div>
       <Header>
         <RightMenu>
-          {/* <span onClick={onClickUserProfile}>
-            <ProfileImg src={gravatar.url(userData.email, { s: '28px', d: 'retro' })} alt={userData.nickname} />
+          <span onClick={onClickUserProfile}>
+            <ProfileImg src={gravatar.url(userData?.email!, { s: '28px', d: 'retro' })} alt={userData?.name!} />
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onCloseUserProfile}>
                 <ProfileModal>
-                  <img src={gravatar.url(userData.nickname, { s: '36px', d: 'retro' })} alt={userData.nickname} />
+                  <img src={gravatar.url(userData?.email!, { s: '36px', d: 'retro' })} alt={userData?.name!} />
                   <div>
-                    <span id="profile-name">{userData.nickname}</span>
+                    <span id="profile-name">{userData?.id!}</span>
                     <span id="profile-active">Active</span>
                   </div>
                 </ProfileModal>
                 <LogOutButton onClick={onLogout}>로그아웃</LogOutButton>
               </Menu>
             )}
-            </span> */}
+          </span>
         </RightMenu>
       </Header>
       <WorkspaceWrapper>

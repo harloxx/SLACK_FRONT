@@ -18,6 +18,7 @@ import useSWRInfinite from 'swr/infinite';
 
 const PAGE_SIZE = 20;
 const Channel = () => {
+  
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const [socket] = useSocket(workspace);
   const { data: userData } = useSWR<IUser>('/api/users', fetcher);

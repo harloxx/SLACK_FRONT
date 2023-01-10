@@ -55,9 +55,10 @@ const SignUp = () => {
     [email, password, mismatchError],
   );
 
+  
   if (signUpSuccess) {
-    console.log('회원가입됨');
-    return <Navigate replace to="/login" />;
+    console.log('회원가입 성공');
+    return <Navigate replace to="/login" />; //로그인으로 이동
   }
 
   /* if (userData) {

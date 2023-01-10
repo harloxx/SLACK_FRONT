@@ -7,7 +7,7 @@ import regexifyString from 'regexify-string';
 import { Link, useParams } from 'react-router-dom';
 
 interface Props {
-  data: IDM | IChat;
+  data: IDM | IChat; //dm or channel
 }
 
 const BACK_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3095' : 'https://sleact.nodebird.com';
@@ -43,11 +43,11 @@ const Chat: VFC<Props> = ({ data }) => {
   return (
     <ChatWrapper>
       <div className="chat-img">
-        <img src={gravatar.url(user.email, { s: '36px', d: 'retro' })} alt={user.nickname} />
+        <img src={gravatar.url(user.email, { s: '36px', d: 'retro' })} alt={user.name} />
       </div>
       <div className="chat-text">
         <div className="chat-user">
-          <b>{user.nickname}</b>
+          <b>{user.name}</b>
           {/* 해당날짜를 저 포멧으로 변경하라 */}
           <span>{dayjs(data.createdAt).format('h:mm A')}</span>
         </div>

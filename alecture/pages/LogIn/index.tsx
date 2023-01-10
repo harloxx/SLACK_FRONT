@@ -8,10 +8,21 @@ import { Navigate, useNavigate } from 'react-router';
 import { SET_TOKEN } from '../../src/store/Auth';
 
 import useSWR from 'swr';
+import { IUser } from '@typings/db';
+import fetcherWithToken from '@utils/fetcherWithToken';
+
 //useInput의 return값이 []안에 변수에 대응된다.
 //회원가입 -> 워크스페이스에 초대 -> 초대된 사람들 중에서 채널에 초대
+
 const LogIn = () => {
-  //const { data: userData, error, mutate } = useSWR('http://fake-slack.shop/members/current', fetcher);
+  const {
+    data: userData,
+    error,
+    mutate,
+  } = useSWR<IUser>('http://fake-slack.shop/members/current', (url) => fetcherWithToken(url, token), {
+    dedupingInterval: 2000, // 2초마다 데이터 업데이트
+  });
+
   const [logInError, setLogInError] = useState(false);
   const [token, setToken] = useState('');
   const [refToken, setRefToken] = useState('');
@@ -42,14 +53,12 @@ const LogIn = () => {
           console.log(res.headers['authorization']);
           console.log(res.data);
           setToken(res.headers['authorization']);
-          dispatch(SET_TOKEN(res.headers['authorization'])); //store에 access token 저장
         })
         .catch((error) => {
           setLogInError(error.response?.data?.code === 401);
           console.log(error);
         })
         .finally(() => {
-          //왜 안넘어 가
           setTimeout(() => {
             nav('/loading');
           }, 1000);
@@ -58,17 +67,12 @@ const LogIn = () => {
     [email, password, token],
   );
 
-  //api요청할 때마다
-  //axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`; 삽입
-
-  //로컬 스토리지에 임시 저장
-
   //일반로그인
   //유저정보가 있다면 채널 페이지로 이동
-  /*if (!error && userData) {
+  if (!error && userData) {
     console.log('로그인됨', userData);
     return <Navigate replace to="/workspace/sleact/channel/일반" />;
-  }*/
+  }
 
   //구글로그인
   //토큰(유저식별번호)가 있다면 채널 페이지로 이동
