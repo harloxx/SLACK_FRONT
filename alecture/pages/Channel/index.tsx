@@ -18,7 +18,6 @@ import useSWRInfinite from 'swr/infinite';
 
 const PAGE_SIZE = 20;
 const Channel = () => {
-  
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const [socket] = useSocket(workspace);
   const { data: userData } = useSWR<IUser>('/api/users', fetcher);
@@ -28,7 +27,7 @@ const Channel = () => {
     data: chatData,
     mutate: mutateChat,
     setSize,
-  } = useSWRInfinite<IChat[]>(
+  } = useSWRInfinite<IChat[]>( //대화 하나는 IChat 타입이지만, 여러개는 IChat[] 타입
     (index) => `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
     {

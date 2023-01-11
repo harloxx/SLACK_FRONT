@@ -46,6 +46,7 @@ const Workspace: VFC = () => {
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
+  const [showWorkspaceData, setWorkspaceData] = useState([]);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
   const { workspace } = useParams<{ workspace: string }>();
@@ -55,10 +56,10 @@ const Workspace: VFC = () => {
   //데이터 타입이 IUser이거나 false(로그인 안되어있으면)일 수 있다.
 
   //토큰 관리
-  const token = JSON.parse(localStorage.getItem('token') ?? ''); //토큰이 없을 경우 undefind 처리
-  console.log('workspace', token);
+  const token = JSON.parse(localStorage.getItem('token') ?? ''); //토큰이 없을 경우
+  console.log('Workspace token: ', token);
 
-  //유저정보 전역관리
+  //유저정보 전역관리: id, name, emila이 userData에 담김
   const {
     data: userData,
     error,
@@ -68,8 +69,9 @@ const Workspace: VFC = () => {
   });
 
   if (userData) {
-    console.log(userData);
+    console.log(userData, '연결됨');
   }
+
   //const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
   const [socket, disconnect] = useSocket(workspace);
@@ -90,6 +92,12 @@ const Workspace: VFC = () => {
     };
   }, [workspace, disconnect]);
 */
+  const onGetWorkspaceData = useCallback(() => {
+    axios.get('http://fake-slack.shop/workspaces').then((res) => {
+      console.log(res.data);
+      setWorkspaceData(res?.data);
+    });
+  }, []);
 
   //로그아웃
   const onLogout = useCallback(() => {
@@ -176,6 +184,7 @@ const Workspace: VFC = () => {
       <Header>
         <RightMenu>
           <span onClick={onClickUserProfile}>
+            <h2 onClick={onGetWorkspaceData}>클릭미</h2>
             <ProfileImg src={gravatar.url(userData?.email!, { s: '28px', d: 'retro' })} alt={userData?.name!} />
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onCloseUserProfile}>
@@ -194,15 +203,15 @@ const Workspace: VFC = () => {
       </Header>
       <WorkspaceWrapper>
         <Workspaces>
-          {/* 다른 워크스페이스 클릭시 주소 생성
-          {userData?.Workspaces.map((ws) => {
+          {/* 다른 워크스페이스 클릭시 주소 생성*/}
+          {showWorkspaceData?.map((wsd) => {
             return (
-              <Link key={ws.id} to={`/workspace/${123}/channel/normal`}>
-                <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
+              <Link key={wsd.id} to={`/workspace/${123}/channel/normal`}>
+                <WorkspaceButton>{wsd.id.slice(0, 1).toUpperCase()}</WorkspaceButton>
               </Link>
             );
           })}
-          <AddButton onClick={onClickCreateWorkspace}>+</AddButton> */}
+          <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
         </Workspaces>
         <Channels>
           <WorkspaceName onClick={toggleWorkspaceModal}>Sleact</WorkspaceName>
@@ -210,6 +219,7 @@ const Workspace: VFC = () => {
             <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
               <WorkspaceModal>
                 <h2>Sleact</h2>
+
                 <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
                 <button onClick={onClickAddChannel}>채널 만들기</button>
                 <button onClick={onLogout}>로그아웃</button>

@@ -5,17 +5,14 @@ import axios from 'axios';
 import React, { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import GoogleLogin from 'react-google-login';
+import { useParams } from 'react-router';
 import { Navigate } from 'react-router';
 import useSWR, { mutate } from 'swr';
 
 const LoginPage = () => {
-  //데이터 전역관리
-  /*const {
-    data: userData,
-    error,
-    mutate,
-  } = useSWR('ec2-3-37-182-244.ap-northeast-2.compute.amazonaws.com/member/login', fetcher);*/
-
+  let params = useParams();
+  const googleID = params.id;
+  const googleCode = params.code;
   const [token, setToken] = useState(''); //받아온 토큰을 임시저장할 공간
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -28,18 +25,14 @@ const LoginPage = () => {
     (e) => {
       e.preventDefault();
       axios
-        .post(
-          'ec2-3-37-182-244.ap-northeast-2.compute.amazonaws.com/oauth2/authorization/google',
-          // { email, password },
-          {
-            headers: {
-              Authorization: token,
-              'Content-Type': 'application/json',
-            },
+        .post('http://fake-slack.shop/members/google', {
+          headers: {
+            Authorization: googleID,
+            code: googleCode,
           },
-        )
+        })
         .then((res) => {
-          console.log('로그인 성공', res.data.Authorization);
+          console.log('구글로그인 성공', res.data.Authorization);
           setToken(res.data.Authorization);
           localStorage.setItem('token', JSON.stringify(res.data.Authorization));
         })
@@ -69,7 +62,7 @@ const LoginPage = () => {
         <p>구글 로그인 페이지입니다.</p>
         <Button
           onClick={() => {
-            location.href = 'http://ec2-3-37-182-244.ap-northeast-2.compute.amazonaws.com/oauth2/authorization/google';
+            location.href = 'http://fake-slack.shop/oauth2/authorization/google';
           }}
         >
           구글 로그인 제발 해줘

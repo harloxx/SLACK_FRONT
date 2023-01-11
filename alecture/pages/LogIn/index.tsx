@@ -2,7 +2,7 @@ import useInput from '@hooks/useInput';
 import { Button as But2, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, useNavigate } from 'react-router';
 import { SET_TOKEN } from '../../src/store/Auth';
@@ -29,12 +29,35 @@ const LogIn = () => {
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
   const nav = useNavigate();
-  const dispatch = useDispatch();
 
-  //const token2 = useSelector((state)=>state.authToken.value);
-  //console.log(token2);
-  console.log(token);
+  const googleID = new URLSearchParams(location.search).get('id');
+  const googleCode = new URLSearchParams(location.search).get('code');
 
+  console.log(googleID, 'googleID');
+  console.log(googleCode, 'googleCode');
+
+  //구글로그인
+  if (googleID && googleCode) {
+    axios
+      .post('http://fake-slack.shop/members/google', {
+        id: googleID,
+        code: googleCode,
+      })
+      .then((res) => {
+        console.log('구글로그인 성공, 토큰: ', res.headers?.authorization);
+        setToken(res.headers?.authorization);
+        localStorage.setItem('token', JSON.stringify(res.headers?.authorization));
+      })
+      .catch((error) => {
+        setLogInError(error.response?.data?.code === 401);
+        console.log(error, '구글로그인 실패');
+      })
+      .finally(() => {
+        setTimeout(() => nav('/loading'), 1000);
+      });
+  }
+
+  //일반로그인
   const onSubmit = useCallback(
     (e) => {
       e.preventDefault();
@@ -67,18 +90,16 @@ const LogIn = () => {
     [email, password, token],
   );
 
-  //일반로그인
-  //유저정보가 있다면 채널 페이지로 이동
+  //일반로그인: 유저정보가 있다면 기본 채널 페이지로 이동
   if (!error && userData) {
     console.log('로그인됨', userData);
     return <Navigate replace to="/workspace/sleact/channel/일반" />;
   }
 
-  //구글로그인
-  //토큰(유저식별번호)가 있다면 채널 페이지로 이동
+  //구글로그인: 토큰(유저식별번호)가 있다면 기본 채널 페이지로 이동
   if (token) {
     console.log('로그인됨', token);
-    return <Navigate replace to="/loading" />;
+    return <Navigate replace to="/workspace/sleact/channel/일반" />;
   }
 
   return (
