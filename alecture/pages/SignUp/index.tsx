@@ -8,7 +8,6 @@ import { Navigate } from 'react-router';
 import useSWR from 'swr';
 
 const SignUp = () => {
-  //const { data: userData } = useSWR('/api/users', fetcher);
   const [signUpError, setSignUpError] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [mismatchError, setMismatchError] = useState(false);
@@ -55,15 +54,10 @@ const SignUp = () => {
     [email, password, mismatchError],
   );
 
-  
   if (signUpSuccess) {
     console.log('회원가입 성공');
     return <Navigate replace to="/login" />; //로그인으로 이동
   }
-
-  /* if (userData) {
-    return <Navigate to="/workspace/sleact/channel/일반" />;
-  }*/
 
   return (
     <div id="container">
